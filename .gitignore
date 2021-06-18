@@ -1,0 +1,5 @@
+fly*
+go.sum
+
+# for MS Win
+*.exe
