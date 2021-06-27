@@ -6,28 +6,34 @@ import (
 
 // https://coolshell.cn/articles/21128.html#Slice
 
-func Sexam() {
+func ExamSlicing() {
 	arrSmall := make([]int, 10)
-	fmt.Printf("Original array addr: %p\n", arrSmall)
-	fmt.Printf("array content: %v\n", arrSmall)
 	nrArr := arrSmall[:6]
-	fmt.Printf("Original nrArr addr: %p\n", nrArr)
+
+	checkPrint := func(prefix string) {
+		fmt.Printf("%v arrSmall addr: %p, %v\n", prefix, arrSmall, arrSmall)
+		fmt.Printf("%v nrArr addr: %p, %v\n", prefix, nrArr, nrArr)
+	}
+	checkPrint("Original")
 
 	// still not beyond capacity of underlying array, extend the slicing range directly
+	fmt.Println("Append nrArr, just extend...")
 	anum := 3
 	nrArr = append(nrArr, anum)
-	fmt.Printf("Now array content: %v\n", arrSmall)
-	fmt.Printf("Now nrArr addr: %p\n", nrArr)
+	checkPrint("Now")
 
 	// beyond capacity, allocate a new blocks of memory
 	// `arrSmall` start to differ from `nrArr`
-	fmt.Println("Appending more...")
-	arrSmall = append(arrSmall, []int{3, 9, 6, 8}...)
-	fmt.Printf("Now array addr: %p\n", arrSmall)
-	fmt.Printf("array content: %v\n", arrSmall)
-	fmt.Printf("Now nrArr addr: %p\n", nrArr)
+	// fmt.Println("Append more, allocating a new block of memory...")
+	// arrSmall = append(arrSmall, []int{3, 9, 6, 8}...)
+	// checkPrint("Now")
 
-	// how to do slicing deleting or cleaning?
+	fmt.Println("Append nrArr beyond limit...")
+	nrArr = append(nrArr, []int{99, 99, 99, 99, 199}...)
+	checkPrint("Now")
+
+	// do slicing deleting
+	fmt.Println("Shrink allSmall...")
 	arrSmall = arrSmall[:1]
-	fmt.Printf("array content: %v\n", arrSmall)
+	checkPrint("Last")
 }
