@@ -15,46 +15,46 @@ import (
 //     没有什么令人困惑的事（是nil 还是空）
 
 type Server struct {
-	Addr     string
-	Port     int
-	Protocol string
-	Timeout  time.Duration
-	MaxConns int
-	TLS      *tls.Config
+	// 彻底封装成员变量
+	addr     string
+	port     int
+	protocol string
+	timeout  time.Duration
+	maxConns int
+	cTLS     *tls.Config
 }
 
 type Option func(*Server)
 
 func Protocol(p string) Option {
 	return func(s *Server) {
-		s.Protocol = p
+		s.protocol = p
 	}
 }
 func Timeout(timeout time.Duration) Option {
 	return func(s *Server) {
-		s.Timeout = timeout
+		s.timeout = timeout
 	}
 }
 func MaxConns(maxconns int) Option {
 	return func(s *Server) {
-		s.MaxConns = maxconns
+		s.maxConns = maxconns
 	}
 }
 func TLS(tls *tls.Config) Option {
 	return func(s *Server) {
-		s.TLS = tls
+		s.cTLS = tls
 	}
 }
 
 func NewServer(addr string, port int, options ...Option) (*Server, error) {
-
 	srv := Server{
-		Addr:     addr,
-		Port:     port,
-		Protocol: "tcp",
-		Timeout:  30 * time.Second,
-		MaxConns: 1000,
-		TLS:      nil,
+		addr:     addr,
+		port:     port,
+		protocol: "tcp",
+		timeout:  30 * time.Second,
+		maxConns: 1000,
+		cTLS:     nil,
 	}
 	for _, option := range options {
 		option(&srv)
@@ -71,8 +71,6 @@ func show() {
 		TLS(&tls.Config{}),
 	); err == nil {
 		Proc(srv)
-	} else {
-		return
 	}
 }
 
