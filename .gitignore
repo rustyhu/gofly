@@ -3,3 +3,5 @@ go.sum
 
 # for MS Win
 *.exe
+# for DB relative
+*.db
