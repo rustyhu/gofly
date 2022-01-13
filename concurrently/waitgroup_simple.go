@@ -13,7 +13,7 @@ func wgChecker(id int, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	fmt.Printf("Checker %d starting\n", id)
-	time.Sleep(time.Duration(2) * time.Second)
+	time.Sleep(2 * time.Second)
 	fmt.Printf("Checker %d done\n", id)
 }
 
