@@ -1,4 +1,6 @@
 fly*
+# build binary
+gofly
 go.sum
 
 # for MS Win
