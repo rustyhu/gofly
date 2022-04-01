@@ -1,5 +1,7 @@
 package main
 
+// something like netcat
+
 import (
 	"fmt"
 	"io"
@@ -77,17 +79,17 @@ Your choice:
 4. Quit
 Input: `)
 
-		var choice uint
-		fmt.Scanln(choice)
+		var choice Mode
+		fmt.Scanln(&choice)
 
 		switch choice {
-		case uint(DIAL):
+		case DIAL:
 			basicConf.mode = DIAL
 			connectToOthers(&basicConf)
-		case uint(WAIT):
+		case WAIT:
 			basicConf.mode = WAIT
 			waitForConnects(&basicConf)
-		case uint(QUIT):
+		case QUIT:
 			break OUTER
 		default:
 			fmt.Println("Invalid option")

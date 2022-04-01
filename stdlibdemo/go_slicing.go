@@ -42,3 +42,15 @@ func passSlice(a []int, more []int) {
 	b := append(a, more...)
 	fmt.Println("Get b inside [slicing]:", b)
 }
+
+func FilterMut(a *[]int, pred func(int) bool) {
+	// L := len(*a)
+	widx := 0
+	for ridx := range *a {
+		if pred((*a)[ridx]) {
+			(*a)[widx] = (*a)[ridx]
+			widx++
+		}
+	}
+	*a = (*a)[:widx]
+}

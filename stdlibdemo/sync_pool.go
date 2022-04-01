@@ -12,7 +12,7 @@ var pool = sync.Pool{
 	},
 }
 
-func main() {
+func Dmain() {
 	if s, isValid := pool.Get().(*Something); isValid {
 		defer pool.Put(s)
 		s.Name = "hello"
