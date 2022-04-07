@@ -1,69 +1,74 @@
 package ctrlsys
 
 // 大批量结构化数据监控
+// Large scaled structured data stream monitor
 
-import "log"
-
-type Dir int
-
-const (
-	Buy Dir = iota + 1
-	Sell
-	Pur
-	Red
+import (
+	"log"
 )
 
-// a crude mock
-type TradeBlance struct {
-	no    int
-	price int
-	dir   Dir
+// ExamineControl represent the main control process for some type of data, for example risk data
+type ExamineControl struct {
+	curTransaction Transaction
+	rules          []Rule
 }
 
-///// Entrust
-type Entrust interface {
-}
-
-// example
-type ETFEntrustOrder struct {
-	No    uint32
-	Price int32
-}
-
-///// Entrust END
-
-// DataControl represent the main control process for some type of data, for example risk data
-type DataControl struct {
-	currentOrder Entrust
-	rules        []Rule
-}
-
-func (ctrl *DataControl) EntrustInput(order Entrust) {
-	if order == nil {
-		log.Println("Invalid inserted order!")
-		return
-	}
-	ctrl.currentOrder = order
-}
-
-func (ctrl *DataControl) AssignRule(r Rule) {
+func (ctrl *ExamineControl) AssignRule(r Rule) {
 	ctrl.rules = append(ctrl.rules, r)
 }
 
-func (ctrl *DataControl) CheckForbidden() {
+func (ctrl *ExamineControl) InputTransaction(tr Transaction) {
+	if tr == nil {
+		log.Println("Invalid inserted order!")
+		return
+	}
+	ctrl.curTransaction = tr
+	ctrl.update()
+	// need external interfere?
+	ctrl.CheckForbidden()
+
+}
+
+func (ctrl *ExamineControl) update() {
 	for _, r := range ctrl.rules {
-		r.Check()
+		r.UpdateData(ctrl.curTransaction)
 	}
 }
 
+func (ctrl *ExamineControl) CheckForbidden() {
+	checkChan := make(chan CheckResult, len(ctrl.rules))
+	for _, r := range ctrl.rules {
+		go func(r Rule) {
+			checkChan <- r.Check()
+		}(r)
+	}
+
+	for i := 0; i < len(ctrl.rules); i++ {
+		if res := <-checkChan; res.Violated {
+			// trigger an alert then abandon left results
+			ctrl.alertProc(res.AlertInfo)
+			break
+		}
+	}
+}
+
+func (ctrl *ExamineControl) alertProc(a *Alarm) {
+	if a == nil {
+		log.Println("Empty alarm info! Should be a bug!")
+		return
+	}
+	// Raw
+	log.Println(*a)
+}
+
 func DemoTest() {
-	riskctrl := DataControl{}
-	for i, entrust := range []Entrust{
-		ETFEntrustOrder{1, 10},
-		ETFEntrustOrder{2, 10},
-		ETFEntrustOrder{3, 20},
+	riskctrl := ExamineControl{}
+	for i, entrust := range []Transaction{
+		ETFOrder{1, 10},
+		ETFOrder{2, 10},
+		ETFOrder{3, 20},
 	} {
 		log.Println("Input entrust no:", i)
-		riskctrl.EntrustInput(entrust)
+		riskctrl.InputTransaction(entrust)
 	}
 }
