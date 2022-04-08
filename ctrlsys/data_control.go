@@ -1,7 +1,7 @@
 package ctrlsys
 
-// 大批量结构化数据监控
-// Large scaled structured data stream monitor
+// 结构化数据流监控
+// structured data stream monitor
 
 import (
 	"log"
@@ -9,8 +9,8 @@ import (
 
 // ExamineControl represent the main control process for some type of data, for example risk data
 type ExamineControl struct {
-	curTransaction Transaction
-	rules          []Rule
+	pendingTrans Transaction
+	rules        []Rule
 }
 
 func (ctrl *ExamineControl) AssignRule(r Rule) {
@@ -22,7 +22,7 @@ func (ctrl *ExamineControl) InputTransaction(tr Transaction) {
 		log.Println("Invalid inserted order!")
 		return
 	}
-	ctrl.curTransaction = tr
+	ctrl.pendingTrans = tr
 	ctrl.update()
 	// need external interfere?
 	ctrl.CheckForbidden()
@@ -31,7 +31,7 @@ func (ctrl *ExamineControl) InputTransaction(tr Transaction) {
 
 func (ctrl *ExamineControl) update() {
 	for _, r := range ctrl.rules {
-		r.UpdateData(ctrl.curTransaction)
+		r.UpdateData(ctrl.pendingTrans)
 	}
 }
 
@@ -64,9 +64,8 @@ func (ctrl *ExamineControl) alertProc(a *Alarm) {
 func DemoTest() {
 	riskctrl := ExamineControl{}
 	for i, entrust := range []Transaction{
-		ETFOrder{1, 10},
-		ETFOrder{2, 10},
-		ETFOrder{3, 20},
+		StockOrder{orderBase{No: 1, Price: 10}},
+		StockOrder{orderBase{2, 10, 100}},
 	} {
 		log.Println("Input entrust no:", i)
 		riskctrl.InputTransaction(entrust)

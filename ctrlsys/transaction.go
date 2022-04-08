@@ -1,5 +1,7 @@
 package ctrlsys
 
+import "fmt"
+
 ///// Transaction is the process unit of the data stream waiting for checking (like entrust, order, ...)
 type Transaction interface {
 }
@@ -14,9 +16,18 @@ const (
 )
 
 // ETFOrder is an example of detailed `Transaction`
-type ETFOrder struct {
-	No    uint32
-	Price int32
+type orderBase struct {
+	No     uint32
+	Price  uint32
+	Volume uint32
+	// securityCode string
 }
 
-///// Transaction END
+type StockOrder struct {
+	orderBase
+}
+
+func demoT() {
+	a := StockOrder{}
+	fmt.Println(a.No, a.Price)
+}
