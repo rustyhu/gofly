@@ -10,10 +10,10 @@ import (
 // ExamineControl represent the main control process for some type of data, for example risk data
 type ExamineControl struct {
 	pendingTrans Transaction
-	rules        []Rule
+	rules        []*Rule
 }
 
-func (ctrl *ExamineControl) AssignRule(r Rule) {
+func (ctrl *ExamineControl) AssignRule(r *Rule) {
 	ctrl.rules = append(ctrl.rules, r)
 }
 
@@ -38,7 +38,7 @@ func (ctrl *ExamineControl) update() {
 func (ctrl *ExamineControl) CheckForbidden() {
 	checkChan := make(chan CheckResult, len(ctrl.rules))
 	for _, r := range ctrl.rules {
-		go func(r Rule) {
+		go func(r *Rule) {
 			checkChan <- r.Check()
 		}(r)
 	}
