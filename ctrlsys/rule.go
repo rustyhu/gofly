@@ -3,7 +3,9 @@ package ctrlsys
 import "sync"
 
 ///// Rule structure
+
 type Alarm struct {
+	msg string
 }
 
 type CheckResult struct {
@@ -70,13 +72,16 @@ func (r *Rule) Check() CheckResult {
 
 	calcResults := r.collectFactors()
 	// **Reduce** pattern
-	res := calcResults[0]
+	calcVal := calcResults[0]
 	for _, op := range r.ops {
 		// op.operandIdx should never overflow, should be checked when rule was set
-		res = op.optor(res, calcResults[op.factorIdx])
+		calcVal = op.optor(calcVal, calcResults[op.factorIdx])
 	}
 
-	violated := r.info.compare(res)
+	// TODO: notice to compare only integer value, float (like N% ratio
+	// comparison) need to do conversion before and after calculation and
+	// and take care of float resolution problem
+	violated := r.info.compare(calcVal)
 	var pAlarm *Alarm = nil
 	if violated {
 		pAlarm = r.generateAlarm()
@@ -100,7 +105,7 @@ func (r *Rule) collectFactors() []int64 {
 }
 
 func (r *Rule) generateAlarm() *Alarm {
-	return &Alarm{}
+	return &Alarm{"Generating demo"}
 }
 
 // arithmeticElemOP consider only four elementary operations of arithmetic (+-*/) now, waiting for extending afterward
@@ -128,16 +133,12 @@ type Operation struct {
 	factorIdx int
 }
 
+type Factor interface {
+	Calc() int64
+}
+
 // Parameters are with Factor
 type Parameter struct {
-}
-
-type Factor struct {
-	parameters map[int]Parameter
-}
-
-func (r *Factor) Calc() int64 {
-	return 0
 }
 
 // a crude mock: one type of detailed rule statistic data structure
