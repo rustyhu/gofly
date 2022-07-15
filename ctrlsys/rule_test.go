@@ -13,6 +13,10 @@ func (f *mockFactorA) Calc() int64 {
 	return f.val
 }
 
+func (f *mockFactorA) UpdateData(tr Transaction) {
+	f.val += tr.getSum()
+}
+
 func TestElemOP(t *testing.T) {
 	// assert := assert.New(t)
 

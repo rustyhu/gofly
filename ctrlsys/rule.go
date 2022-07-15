@@ -57,6 +57,9 @@ func (r *Rule) BasicInfo() RuleInfo {
 }
 
 func (r *Rule) UpdateData(tr Transaction) {
+	for _, f := range r.factors {
+		f.UpdateData(tr)
+	}
 }
 
 func (r *Rule) Check() CheckResult {
@@ -135,6 +138,7 @@ type Operation struct {
 
 type Factor interface {
 	Calc() int64
+	UpdateData(tr Transaction)
 }
 
 // Parameters are with Factor

@@ -22,6 +22,14 @@
             "options": {
             },
             "problemMatcher": ["$go"],
+        },
+        {
+            "label": "Build and run",
+            "type": "shell",
+            "command": "go build && ./${workspaceFolderBasename}",
+            "options": {
+            },
+            "problemMatcher": ["$go"],
         }
     ]
 }

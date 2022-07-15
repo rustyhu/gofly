@@ -4,6 +4,7 @@ import "fmt"
 
 ///// Transaction is the process unit of the data stream waiting for checking (like entrust, order, ...)
 type Transaction interface {
+	getSum() int64
 }
 
 type EntrustDir int
@@ -16,18 +17,19 @@ const (
 )
 
 // ETFOrder is an example of detailed `Transaction`
-type orderBase struct {
-	No     uint32
-	Price  uint32
-	Volume uint32
+type SimpleOrder struct {
+	No     uint64
+	Price  uint64
+	Volume uint64
 	// securityCode string
+	// other things
 }
 
-type StockOrder struct {
-	orderBase
+func (s *SimpleOrder) getSum() int64 {
+	return int64(s.Price * s.Volume)
 }
 
 func demoT() {
-	a := StockOrder{}
+	a := SimpleOrder{}
 	fmt.Println(a.No, a.Price)
 }

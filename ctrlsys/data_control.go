@@ -13,6 +13,12 @@ type ExamineControl struct {
 	rules        []*Rule
 }
 
+func NewControl() ExamineControl {
+	const RULE_CAPACITY = 128
+
+	return ExamineControl{rules: make([]*Rule, 0, RULE_CAPACITY)}
+}
+
 func (ctrl *ExamineControl) AssignRule(r *Rule) {
 	ctrl.rules = append(ctrl.rules, r)
 }
@@ -64,8 +70,8 @@ func (ctrl *ExamineControl) alertProc(a *Alarm) {
 func DemoTest() {
 	riskctrl := ExamineControl{}
 	for i, entrust := range []Transaction{
-		StockOrder{orderBase{No: 1, Price: 10}},
-		StockOrder{orderBase{2, 10, 100}},
+		&SimpleOrder{No: 1, Price: 10},
+		&SimpleOrder{2, 10, 100},
 	} {
 		log.Println("Input entrust no:", i)
 		riskctrl.InputTransaction(entrust)
