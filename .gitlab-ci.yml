@@ -11,13 +11,14 @@ stages:
 compile:
   stage: build
   script:
-    - echo "Start to build..."
+    - echo "Start to verify build..."
+    - go mod tidy
     - go vet $(go list ./... | grep -v /someframes)
     - go build gofly/algodemos gofly/ctrlsys gofly/stdlibdemo
 
 test-job1:
   stage: test
   script:
-    - echo "Run all the tests"
+    - echo "Run all the tests..."
     # go test -v -timeout 30s gofly/algodemos
     - go test -v -timeout 30s -race $(go list ./... | grep -v /vendor/)
