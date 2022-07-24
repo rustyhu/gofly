@@ -25,7 +25,18 @@
             "type": "go",
             "request": "launch",
             "mode": "test",
-            "program": "${workspaceFolder}"
+            "program": "${workspaceFolder}",
+            "args": ["-test.v"],
+        },
+        {
+            "name": "Fly Test",
+            "type": "go",
+            "request": "launch",
+            "mode": "test",
+            "program": "${workspaceFolder}/fly_test.go",
+            "args": ["-test.v", "--", "arg1","arg2","arg3"],
+            "env": {},
+            "showLog": true
         }
     ]
 }

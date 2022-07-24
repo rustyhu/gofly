@@ -1,0 +1,15 @@
+build-job:
+  stage: build
+  script:
+    - echo "Start to build..."
+    - go build gofly/algodemos
+    - go build gofly/ctrlsys
+    - go build gofly/pattern
+    - go build gofly/stdlibdemo
+
+test-job1:
+  stage: test
+  script:
+    - echo "Run all the tests"
+    - go test -v -timeout 30s gofly/algodemos
+    - go test -v -timeout 30s gofly/stdlibdemo
