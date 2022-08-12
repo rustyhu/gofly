@@ -4,7 +4,7 @@ import "fmt"
 
 ///// Transaction is the process unit of the data stream waiting for checking (like entrust, order, ...)
 type Transaction interface {
-	getSum() int64
+	getTotalAmount() int64
 }
 
 type EntrustDir int
@@ -25,7 +25,7 @@ type SimpleOrder struct {
 	// other things
 }
 
-func (s *SimpleOrder) getSum() int64 {
+func (s *SimpleOrder) getTotalAmount() int64 {
 	return int64(s.Price * s.Volume)
 }
 

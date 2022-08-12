@@ -14,7 +14,7 @@ func (f *mockFactorA) Calc() int64 {
 }
 
 func (f *mockFactorA) UpdateData(tr Transaction) {
-	f.val += tr.getSum()
+	f.val += tr.getTotalAmount()
 }
 
 func TestElemOP(t *testing.T) {

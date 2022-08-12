@@ -13,7 +13,7 @@ compile:
   script:
     - go mod tidy
     - echo "Start to verify build..."
-    - go vet $(go list ./... | grep -v /someframes)
+    - go vet $(go list ./... | grep -v /vendor/)
     - go build gofly/algodemos gofly/ctrlsys gofly/stdlibdemo
 
 test-job1:
