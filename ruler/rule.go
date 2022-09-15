@@ -1,4 +1,4 @@
-package ctrlsys
+package ruler
 
 import "sync"
 
@@ -24,32 +24,37 @@ const (
 )
 
 type RuleInfo struct {
-	Dir       RuleDirection
-	Threshold int64
+	checkDir  RuleDirection
+	threshold int64
 }
 
 func (ri *RuleInfo) compare(calcRes int64) bool {
-	switch ri.Dir {
+	switch ri.checkDir {
 	case Equal:
-		return calcRes == ri.Threshold
+		return calcRes == ri.threshold
 	case More:
-		return calcRes > ri.Threshold
+		return calcRes > ri.threshold
 	case MoreEqual:
-		return calcRes >= ri.Threshold
+		return calcRes >= ri.threshold
 	case Less:
-		return calcRes < ri.Threshold
+		return calcRes < ri.threshold
 	case LessEqual:
-		return calcRes <= ri.Threshold
+		return calcRes <= ri.threshold
 	default:
 		return false
 	}
 }
 
-// Rule is an info holder, a data holder, a checker, ... may be the key role in this system
+// Rule is an info holder, a factors holder, a checker, ... may be the key role in this system.
+// Most simple case, if only one factor is needed, just assign it and left ops empty
 type Rule struct {
 	info    RuleInfo
 	factors []Factor
 	ops     []Operation // arithmetic operations
+}
+
+func NewRule(ri RuleInfo, fs []Factor, ops []Operation) Rule {
+	return Rule{ri, fs, ops}
 }
 
 func (r *Rule) BasicInfo() RuleInfo {
@@ -135,19 +140,3 @@ type Operation struct {
 	optor     arithmeticElemOP
 	factorIdx int
 }
-
-type Factor interface {
-	Calc() int64
-	UpdateData(tr Transaction)
-}
-
-// Parameters are with Factor
-type Parameter struct {
-}
-
-// a crude mock: one type of detailed rule statistic data structure
-// type TradeBlance struct {
-// 	no    int
-// 	price int
-// 	dir   EntrustDir
-// }
