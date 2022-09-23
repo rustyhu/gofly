@@ -14,7 +14,7 @@ compile:
     - go mod tidy
     - echo "Start to verify build..."
     - go vet $(go list ./... | grep -v /vendor/)
-    - go build gofly/algodemos gofly/ctrlsys gofly/stdlibdemo
+    - go build gofly/algodemos gofly/ruler gofly/stdlibdemo
 
 test-job1:
   stage: test
