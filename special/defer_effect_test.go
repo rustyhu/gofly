@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-// defer effect
 func TestDefer(t *testing.T) {
 	num := 3
 	defer fmt.Println("Direct defer:", num) // eval value of parameters (like `num`) inmediately
