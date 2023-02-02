@@ -1,4 +1,4 @@
-package main
+package someframes
 
 import (
 	"github.com/gin-gonic/gin"
