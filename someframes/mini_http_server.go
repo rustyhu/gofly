@@ -25,63 +25,65 @@ type Info struct {
 
 var store = map[string]Info{}
 
-// test cases
-var addtxt = `{
+/* test cases
+{
 	"action": "add",
 	"payload": {
 		"ID": "mm886",
 		"Name": "WestL",
 		"Area": 3300
 	}
-}`
+}
 
-// one liner { "action": "add", "payload": { "ID": "mm886", "Name": "WestL", "Area": 3300 } }
+{ "action": "add", "payload": { "ID": "lk21", "Name": "EastL", "Area": 400 } }
 
-var shorttxt = `{
+{
 	"action": "get",
 	"payload": "mm886"
-}`
+}
+*/
+
+// reqUnmarshalSucceed is a error processing wrapper, reqjson must be a pointer
+// return value indicates whether to stop early
+func reqUnmarshalSucceed(w http.ResponseWriter, r *http.Request, reqjson any) bool {
+	reqbyte, err := io.ReadAll(r.Body)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return false
+	}
+
+	err = json.Unmarshal(reqbyte, reqjson)
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return false
+	}
+
+	return true
+}
 
 func hpost(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("\n##### hpost #####")
 
 	reqjson := ActAdd{}
-	var err error
-	// c-style once do-while{} error process to avoid `goto`
-	for i := 0; i < 1; i++ {
-		reqbyte, err := io.ReadAll(r.Body)
-		if err != nil {
-			break
-		}
-
-		err = json.Unmarshal(reqbyte, &reqjson)
-		if err != nil {
-			break
-		}
+	if !reqUnmarshalSucceed(w, r, &reqjson) {
+		return
 	}
 
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-	} else {
-		fmt.Println(reqjson)
-		pl := &reqjson.Payload
-		fmt.Printf("Get payload: %#v\n", *pl)
-		store[pl.Id] = *pl
-	}
+	fmt.Println(reqjson)
+	pl := &reqjson.Payload
+	fmt.Printf("Get payload: %#v\n", *pl)
+	store[pl.Id] = *pl
 }
 
 func hget(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("\n##### hget #####")
 
-	reqbyte, err := io.ReadAll(r.Body)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "", http.StatusBadRequest)
+	reqjson := map[string]string{}
+	if !reqUnmarshalSucceed(w, r, &reqjson) {
 		return
 	}
-	reqjson := map[string]string{}
-	json.Unmarshal(reqbyte, &reqjson)
 
 	fmt.Println("Show request:", reqjson)
 	id := reqjson["payload"]
@@ -98,14 +100,10 @@ func hget(w http.ResponseWriter, r *http.Request) {
 func hdelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("\n##### hdelete #####")
 
-	reqbyte, err := io.ReadAll(r.Body)
-	if err != nil {
-		fmt.Println(err)
-		http.Error(w, "", http.StatusBadRequest)
+	reqjson := map[string]string{}
+	if !reqUnmarshalSucceed(w, r, &reqjson) {
 		return
 	}
-	reqjson := map[string]string{}
-	json.Unmarshal(reqbyte, &reqjson)
 
 	fmt.Println("Show request:", reqjson)
 	id := reqjson["payload"]
@@ -117,5 +115,7 @@ func StartServer() {
 	http.HandleFunc("/", hpost)
 	http.HandleFunc("/g", hget)
 	http.HandleFunc("/d", hdelete)
-	http.ListenAndServe(":8080", nil)
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		fmt.Println(err)
+	}
 }

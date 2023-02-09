@@ -4,9 +4,10 @@ import (
 	"testing"
 )
 
-func TestTmp(t *testing.T) {
+func TestRequest(t *testing.T) {
+	// Need to start http server first - a prerequisite
+
 	type args struct {
-		t testing.T
 	}
 	tests := []struct {
 		name string
