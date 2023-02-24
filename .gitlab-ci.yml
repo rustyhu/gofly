@@ -2,7 +2,6 @@
 
 image: golang:latest
 
-
 stages:
   - build
   - test
@@ -21,5 +20,4 @@ test-job1:
   script:
     - go mod tidy
     - echo "Run all the tests..."
-    # go test -v -timeout 30s gofly/algodemos
     - go test -v -timeout 30s -race $(go list ./... | grep -v /vendor/)

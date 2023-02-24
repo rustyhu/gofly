@@ -10,6 +10,7 @@ func permutations(A []int, plen int) [][]int {
 	return res
 }
 
+// TODO need refactoring
 func permuRes(res *[][]int, rec []int, recidx int, A []int, plen int) {
 	if recidx == plen {
 		recc := make([]int, len(rec))
@@ -33,6 +34,7 @@ func permuRes(res *[][]int, rec []int, recidx int, A []int, plen int) {
 	}
 }
 
+// TODO only for too simple cases, need refactoring
 func combination(A []int, plen int) [][]int {
 	res := [][]int{}
 	for i := 0; i < len(A)-1; i++ {
@@ -45,7 +47,6 @@ func combination(A []int, plen int) [][]int {
 }
 
 func Pexam() {
-	// algodemos.Jexam()
-	// fmt.Println(permutations([]int{1, 2, 3, 4, 5, 6}, 2))
-	fmt.Println(combination([]int{1, 2, 3, 4, 5, 6}, 2))
+	fmt.Println("permutations:", permutations([]int{1, 2, 3, 4, 5, 6}, 2))
+	fmt.Println("combination:", combination([]int{1, 2, 3, 4, 5, 6}, 2))
 }

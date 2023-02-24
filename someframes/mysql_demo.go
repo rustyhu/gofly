@@ -7,7 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func main() {
+func MysqlOpr() {
 
 	// Configure the database connection (always check errors)
 	db, err := sql.Open("mysql", "root:123456@(127.0.0.1:3306)/toy")
