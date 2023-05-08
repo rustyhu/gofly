@@ -4,56 +4,89 @@ package concurrently
 
 import (
 	"fmt"
-	"math/rand"
 	"sync"
-	"time"
 )
 
-// Functor is the interface(closure) type of this routine-pool
-type Functor func()
+// JobUnit is the interface(closure) type of this routine-pool
+type JobUnit struct {
+	jobId  int
+	runner func()
+}
 
-func produce(jobs chan<- Functor) {
+type RoutinePool struct {
+	workersNum int
+	// workers sync
+	wg sync.WaitGroup
+
+	jobs chan JobUnit
+	// also as the assigned job counter
+	jobId int
+}
+
+func NewRoutinePool(workersNum, jobsCachedVol int) *RoutinePool {
+	p := &RoutinePool{
+		workersNum: workersNum,
+		jobs:       make(chan JobUnit, jobsCachedVol),
+		jobId:      0,
+	}
+	p.RunWorkers()
+	// warning: wg can not be copied, so can only be returned by reference
+	return p
+}
+
+// worker, or named consumer
+func (p *RoutinePool) worker(wid int) {
+	defer p.wg.Done()
+
+	for job := range p.jobs {
+		fmt.Printf("Worker #%d received job[#%d]\n", wid, job.jobId)
+		job.runner()
+	}
+}
+
+func (p *RoutinePool) RunWorkers() {
+	// pooling workers:
+	for i := 0; i < p.workersNum; i++ {
+		p.wg.Add(1)
+		go p.worker(i)
+	}
+}
+
+// Wait for all jobs done
+func (p *RoutinePool) Wait() {
+	p.wg.Wait()
+}
+
+// PushJob into channel once a time
+func (p *RoutinePool) PushJob(job func()) {
+	p.jobId++
+	p.jobs <- JobUnit{p.jobId, job}
+}
+
+// CloseJobs manually
+func (p *RoutinePool) CloseJobs() {
+	close(p.jobs)
+}
+
+// task is a function of free form. Design it as what you want
+func task(tid int, c rune) {
+	fmt.Printf("This task #%d prints: \"%c\";\n", tid, c)
+}
+
+func RunPool() {
+	pool := NewRoutinePool(4, 8)
+
 	id := 0
 	for c := 'a'; c <= 'z'; c++ {
 		id++
 
-		// copy to get the independant status, which would be caught by the closure
+		// copy to get the independant status for each job, which would be caught by the closure
 		copyID := id
 		copyC := c
-		jobs <- func() {
-			fmt.Printf("This job #%d prints: \"%c\";\n", copyID, copyC)
-		}
+		pool.PushJob(func() {
+			task(copyID, copyC)
+		})
 	}
-
-	close(jobs)
-}
-
-// worker, or named consumer
-func worker(id int, jobs <-chan Functor, wg *sync.WaitGroup) {
-	defer wg.Done()
-
-	for job := range jobs {
-		sleepMs := rand.Intn(100)
-		fmt.Printf("Worker #%d received job, suspend for %dms\n", id, sleepMs)
-		time.Sleep(time.Duration(sleepMs) * time.Millisecond)
-		job()
-	}
-}
-
-func demoExe() {
-	jobs := make(chan Functor, 100)
-	// routine pool sync waiter
-	var wg sync.WaitGroup
-
-	// pooling workers:
-	const NUM = 5
-	for i := 0; i < NUM; i++ {
-		wg.Add(1)
-		go worker(i, jobs, &wg)
-	}
-
-	// Start producing jobs
-	go produce(jobs)
-
-	wg.Wait()
+	pool.CloseJobs()
+	pool.Wait()
 }
