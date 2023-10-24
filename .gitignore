@@ -7,3 +7,6 @@ go.sum
 *.exe
 # for DB relative
 *.db
+
+# test coverage
+coverage*
