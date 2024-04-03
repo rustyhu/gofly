@@ -38,7 +38,7 @@ func ExamSlicing() {
 	checkPrint("Last")
 }
 
-func passSlice(a []int, more []int) {
+func passAndAppendSlice(a []int, more []int) {
 	b := append(a, more...)
 	fmt.Println("Get b inside [slicing]:", b)
 }

@@ -41,9 +41,9 @@ func handle(conn net.Conn) {
 	fmt.Println("Received:", string(buf[:n]))
 
 	const sendTxt = "Hello 你好 显示UTF8内容展示\n贵方客户地址 [%v].\n"
-	cliAddr := conn.RemoteAddr().String()
-	if _, err := conn.Write([]byte(fmt.Sprintf(
-		sendTxt, cliAddr)),
+	cliAddr := conn.RemoteAddr()
+	if _, err := conn.Write(
+		[]byte(fmt.Sprintf(sendTxt, cliAddr)),
 	); err != nil {
 		fmt.Println("Write exception -", err)
 	}

@@ -37,6 +37,13 @@
             "args": ["-test.v", "--", "arg1","arg2","arg3"],
             "env": {},
             "showLog": true
-        }
+        },
+        {
+            "name": "Attach to Process",
+            "type": "go",
+            "request": "attach",
+            "mode": "local",
+            "processId": 0
+        },
     ]
 }

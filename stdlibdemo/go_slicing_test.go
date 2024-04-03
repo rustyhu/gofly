@@ -1,11 +1,28 @@
 package stdlibdemo
 
 import (
-	"fmt"
-	"reflect"
-	"runtime"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
+
+func TestLenAndCap(t *testing.T) {
+	a := []int{0, 2, 4, 6}
+	assert.Equal(t, 4, len(a))
+	assert.Equal(t, 4, cap(a))
+
+	type Ele struct {
+		id      int
+		checked bool
+	}
+	b := make([]Ele, 0, 10)
+	assert.Equal(t, 0, len(b))
+	for i := 99; i >= 90; i-- {
+		b = append(b, Ele{id: i})
+	}
+	assert.Equal(t, 10, len(b))
+	assert.Equal(t, 10, cap(b))
+}
 
 func TestSlicing(t *testing.T) {
 	a := []int{0, 2, 4, 6}
@@ -20,25 +37,14 @@ func TestSlicing(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.desc, func(t *testing.T) {
-			passSlice(a, tc.data)
-			if len(a) != 4 {
-				t.Error("a changed!")
-			}
+			passAndAppendSlice(a, tc.data)
+			assert.Equal(t, 4, len(a))
+
 			for i, v := range []int{0, 2, 4, 6} {
-				if v != a[i] {
-					t.Error("a changed!")
-				}
+				assert.Equal(t, v, a[i])
 			}
 		})
 	}
-}
-
-func getFunctionName(i interface{}) string {
-	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
-}
-
-func isEven(i int) bool {
-	return i&1 == 0
 }
 
 func TestFilterMut(t *testing.T) {
@@ -46,17 +52,24 @@ func TestFilterMut(t *testing.T) {
 		return i&1 == 1
 	}
 
+	isEven := func(i int) bool {
+		return i&1 == 0
+	}
+
 	cases := []struct {
 		name   string
 		before []int
 		pred   func(int) bool
-		after  []int
+		expect []int
 	}{
-		{"", []int{3, 20, 10}, isOdd, []int{3}},
-		{"", []int{3, 20, 10}, isEven, []int{20, 10}},
-		{"multiple of 3", []int{-3, 20, 10, 999}, func(i int) bool {
-			return i%3 == 0
-		}, []int{-3, 999}},
+		{"Odd", []int{3, 20, 10}, isOdd, []int{3}},
+		{"Even", []int{3, 20, 10}, isEven, []int{20, 10}},
+		{
+			"Multiple of 3",
+			[]int{-3, 20, 10, 999},
+			func(i int) bool { return i%3 == 0 },
+			[]int{-3, 999},
+		},
 	}
 
 	check := func(a, b []int) bool {
@@ -74,16 +87,10 @@ func TestFilterMut(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		ttname := tt.name
-		if ttname == "" {
-			ttname = fmt.Sprint(tt.before, getFunctionName(tt.pred))
-		}
-
-		t.Run(ttname, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			FilterMut(&tt.before, tt.pred)
-			if !check(tt.before, tt.after) {
-				t.Error("Compare:", tt.before, tt.after)
-			}
+			assert.Truef(t, check(tt.before, tt.expect),
+				"expect: %s, actual: %s", tt.expect, tt.before)
 		})
 	}
 }
