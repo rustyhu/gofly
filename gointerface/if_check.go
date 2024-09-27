@@ -16,12 +16,12 @@ type mySt struct {
 
 func (m *mySt) sfunc(int) int {
 	// satisfy baif interface
-	return 3
+	return 3 + m.id
 }
+
 func (m *mySt) dfunc(int) {
 }
 
-func IFExam() {
-	var _ Baif = (*mySt)(nil)
-	var _ Drif = (*mySt)(nil)
-}
+// Interface dependency
+// var _ Baif = (*mySt)(nil)
+var _ Drif = (*mySt)(nil)
