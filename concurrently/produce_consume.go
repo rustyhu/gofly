@@ -9,22 +9,22 @@ import (
 	"time"
 )
 
-type Job struct {
+type jobStruct struct {
 	Id   int
 	Work string
 }
 
-func produceLine(jobs chan<- *Job) {
+func produceLine(jobs chan<- jobStruct) {
 	// Generate jobs:
 	jobId := 0
 	for c := 'a'; c <= 'z'; c++ {
 		jobId++
-		jobs <- &Job{Id: jobId, Work: string(c)}
+		jobs <- jobStruct{Id: jobId, Work: string(c)}
 	}
 	close(jobs)
 }
 
-func consume(wg *sync.WaitGroup, id int, jobs <-chan *Job) {
+func consume(wg *sync.WaitGroup, id int, jobs <-chan jobStruct) {
 	defer wg.Done()
 	for job := range jobs {
 		sleepMs := rand.Intn(1000)
@@ -35,12 +35,13 @@ func consume(wg *sync.WaitGroup, id int, jobs <-chan *Job) {
 }
 
 func Execute() {
-	jobs := make(chan *Job, 100) // Buffered channel
+	jobs := make(chan jobStruct, 100) // Buffered channel
 	var wg sync.WaitGroup
 
 	// Start consumers:
-	for i := 0; i < 5; i++ { // 5 consumers
-		wg.Add(1)
+	const CSMER_NUM = 5
+	wg.Add(CSMER_NUM)
+	for i := 0; i < CSMER_NUM; i++ { // 5 consumers
 		go consume(&wg, i, jobs)
 	}
 	// Start producing
