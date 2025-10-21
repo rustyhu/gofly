@@ -1,12 +1,12 @@
 module gofly
 
-go 1.22
+go 1.23.0
 
 require (
-	github.com/gin-gonic/gin v1.9.1
+	// github.com/gin-gonic/gin v1.9.1
 	github.com/go-sql-driver/mysql v1.7.0
 	github.com/redis/go-redis/v9 v9.0.2
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.8.3
 	gorm.io/driver/sqlite v1.4.4
 	gorm.io/gorm v1.24.3
