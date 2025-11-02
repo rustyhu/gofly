@@ -4,52 +4,56 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"sync"
 	"time"
 )
 
-func longTicker(ctx context.Context) error {
-	ticker := time.NewTicker(500 * time.Millisecond)
-	defer ticker.Stop()
-	cnt := 0
+func StartCtx() {
+	Lseconds := rand.Intn(10) + 1
+	GroupN := 4
+	worktimeN := make([]int, GroupN)
+	for i := range GroupN {
+		worktimeN[i] = rand.Intn(10) + 1
+	}
+	fmt.Printf("Limited seconds is %d;\n", Lseconds)
+	for i := range GroupN {
+		fmt.Printf("Worker %d worktime is %d seconds\n", i, worktimeN[i])
+	}
 
-	for {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(Lseconds)*time.Second)
+	defer cancel()
+
+	// wg is used for observing/debug
+	wg := sync.WaitGroup{}
+	done := make(chan string, GroupN)
+	for id, worktime := range worktimeN {
+		wg.Add(1)
+		go ctxworker(ctx, done, id, worktime, &wg)
+	}
+
+	select {
+	case res := <-done:
+		cancel() // finished, notify still working ones
+		fmt.Println("Finally get:", res)
+	case <-ctx.Done():
+		fmt.Println("All workers failed!")
+	}
+
+	wg.Wait()
+	// concurrently.StartCtx()
+}
+
+func ctxworker(ctx context.Context, done chan<- string, id, worktime int, wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	for i := 1; i <= worktime; i++ {
 		select {
 		case <-ctx.Done():
-			// Operation was canceled
-			return ctx.Err()
-
-		case <-ticker.C:
-			cnt++
-			fmt.Printf("Tick%d, Operation is still running...\n", cnt)
+			fmt.Printf("Worker%d stoped: %s\n", id, ctx.Err())
+			return
+		default:
+			time.Sleep(time.Second)
 		}
 	}
-}
-
-func hardwork(cancel context.CancelFunc) {
-	fmt.Println("Hardwork with context start...")
-
-	// Seed the random number generator
-	rseed := rand.New(rand.NewSource(time.Now().UnixNano()))
-	// Generate a random integer between 1 and 6
-	randomInt := 1 + rseed.Intn(5)
-	// Wait for finishing the work then cancel the context
-	time.Sleep(time.Duration(randomInt) * time.Second)
-	cancel()
-	fmt.Printf("Work of %ds finished and context cancel was called.\n", randomInt)
-}
-
-func StartCtx() {
-	// Create a context with a timeout
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel() // Release resources when main() exits
-
-	go hardwork(cancel)
-
-	// Start the long-running operation
-	err := longTicker(ctx)
-	if err != nil {
-		fmt.Println("Operation failed:", err)
-	} else {
-		fmt.Println("Operation completed successfully")
-	}
+	done <- fmt.Sprintf("Task completed by worker%d, get mark %d", id, worktime)
 }
